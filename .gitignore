@@ -1,0 +1,36 @@
+# Secrets — never commit these
+.env
+*.json
+!package.json
+!package-lock.json
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+env/
+*.egg-info/
+.pytest_cache/
+
+# dbt
+dbt_project/target/
+dbt_project/dbt_packages/
+dbt_project/logs/
+.user.yml
+
+# VS Code
+.vscode/
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Airflow (if you add orchestration later)
+orchestration/logs/
+orchestration/airflow.db
+orchestration/airflow.cfg
+
+# Airbyte local (if self-hosted via Docker)
+airbyte/data/
