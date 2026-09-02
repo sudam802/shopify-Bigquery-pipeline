@@ -188,6 +188,8 @@ query Orders($cursor: String, $query: String) {
         displayFinancialStatus
         displayFulfillmentStatus
         tags
+        email
+        customer { id email }
         currentSubtotalPriceSet { shopMoney { amount currencyCode } }
         currentTotalTaxSet { shopMoney { amount } }
         currentTotalDiscountsSet { shopMoney { amount } }
@@ -218,12 +220,13 @@ def graphql_order_to_row(node: dict[str, Any]) -> dict[str, Any]:
         ((node.get("currentTotalPriceSet") or {}).get("shopMoney") or {}).get("currencyCode")
     )
     tags = node.get("tags") or []
+    customer = node.get("customer") or {}
     return {
         "id": gid_num(node.get("id")),
         "name": node.get("name"),
         "order_number": node.get("number"),
-        "email": None,
-        "customer": {},
+        "email": node.get("email") or customer.get("email"),
+        "customer": {"id": gid_num(customer.get("id")), "email": customer.get("email")},
         "financial_status": (node.get("displayFinancialStatus") or "").lower() or None,
         "fulfillment_status": (node.get("displayFulfillmentStatus") or "").lower() or None,
         "currency": currency,

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Shopify analytics</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <header>
+    <div>
+      <p class="eyebrow">shopify-pipeline</p>
+      <h1>Ask the warehouse</h1>
+      <p class="hint">Natural language is converted to SQL by a local Ollama model, then run read-only against Postgres.</p>
+    </div>
+    <p class="llm {% if llm.ready %}ready{% else %}down{% endif %}">
+      {% if llm.ready %}
+        LLM ready · {{ llm.provider }} · {{ llm.model }}
+      {% else %}
+        LLM offline · {{ llm.provider }} · {{ llm.model }}{% if llm.error %} · {{ llm.error }}{% endif %}
+      {% endif %}
+    </p>
+  </header>
+
+  <section class="kpis" id="kpis">
+    <article><span>Revenue</span><strong id="kpi-revenue">—</strong></article>
+    <article><span>Orders</span><strong id="kpi-orders">—</strong></article>
+    <article><span>Avg order</span><strong id="kpi-aov">—</strong></article>
+    <article><span>Paid orders</span><strong id="kpi-paid">—</strong></article>
+  </section>
+
+  <form id="ask-form">
+    <label for="question">Question or SELECT</label>
+    <div class="row">
+      <input id="question" name="question" autocomplete="off" placeholder="e.g. Top products by sales last 30 days" />
+      <button type="submit" id="ask-button" data-idle="Run">Run</button>
+      <button type="button" id="reset-dashboard" class="ghost" hidden>Show overview</button>
+    </div>
+    <div class="chips">
+      {% for item in suggestions %}
+        <button type="button" class="chip" data-q="{{ item }}">{{ item }}</button>
+      {% endfor %}
+    </div>
+  </form>
+
+  <p id="status" class="status" hidden></p>
+  <p id="error" class="error" hidden></p>
+
+  <section class="grid" id="default-charts">
+    <article class="card"><h2>Revenue over time</h2><canvas id="chart-revenue"></canvas></article>
+    <article class="card"><h2>Order status</h2><canvas id="chart-status"></canvas></article>
+    <article class="card wide"><h2>Top products</h2><canvas id="chart-products"></canvas></article>
+  </section>
+
+  <section class="card" id="answer" hidden>
+    <div class="answer-head">
+      <h2 id="answer-title">Result</h2>
+      <span id="answer-source"></span>
+    </div>
+    <p id="answer-note" class="note" hidden></p>
+    <pre id="sql"></pre>
+    <div id="chart-wrap">
+      <p class="chart-caption">Chart for this query · <span id="chart-kind">—</span></p>
+      <canvas id="chart-answer"></canvas>
+      <p id="chart-empty" class="note" hidden>This result has no numeric series to plot (empty rows, or only text columns). The table below is the full answer.</p>
+    </div>
+    <div class="table-wrap">
+      <table id="result-table"></table>
+    </div>
+  </section>
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
